@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000"; // backend
+const BASE_URL = "http://localhost:3000/api"; // backend
 
 export async function createDonationOrder(payload) {
   const res = await fetch(`${BASE_URL}/payments/donation/order`, {

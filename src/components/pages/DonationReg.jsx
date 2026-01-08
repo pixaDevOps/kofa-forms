@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { createDonationOrder, verifyPayment } from '../../services/payments';
 import { loadRazorpay } from '../../utils/loadRazorpay';
+import DonationSuccess from '../layout/ui/DonationSuccess';
+import { useNavigate } from 'react-router-dom';
 
+import DonationFailed from '../layout/ui/DonationFailed';
 const DonationReg = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,9 +17,11 @@ const DonationReg = () => {
     amount: '',
     termsAccepted: false
   });
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [ShowFailed, setShowFailed] = useState(false);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -65,7 +70,10 @@ const DonationReg = () => {
         kn: "NA",
         en: "NA"
       },
-
+      age: {
+        kn: formData.age || '',
+        en: formData.age || ''
+      },
       gender:
         formData.gender === "ಪುರುಷ"
           ? "male"
@@ -104,47 +112,8 @@ const DonationReg = () => {
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-    if (formData.mobile.length !== 10) {
-      alert("ದಯವಿಟ್ಟು 10 ಅಂಕೆಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-    if (!formData.gender) {
-      alert("ಲಿಂಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-    if (!formData.address.trim()) {
-      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-    if (!formData.district) {
-      alert("ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-
-    if (!formData.taluk) {
-      alert("ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      alert("ಮಾನ್ಯ ದೇಣಿಗೆ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-
-
-    if (!formData.termsAccepted) {
-      alert('ದಯವಿಟ್ಟು ನಿಯಮಗಳಿಗೆ ಒಪ್ಪಿಕೊಳ್ಳಿ');
-      return;
-    }
+  const handleSubmit = async () => {
+    if (loading) return;
 
     setLoading(true);
 
@@ -164,27 +133,62 @@ const DonationReg = () => {
         description: 'Donation',
         order_id: order.data.orderId,
         handler: async (response) => {
-          await verifyPayment({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            donationData: payload
-          });
+          try {
+            const verif = await verifyPayment({
+              applicationId: order.data.applicationId,
+              type: "donation",
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              donationData: payload
+            });
 
-          alert('ಪಾವತಿ ಯಶಸ್ವಿಯಾಗಿದೆ');
+            console.log("VERIFY RESPONSE:", verif);
 
-          setFormData({
-            name: '',
-            mobile: '',
-            age: '',
-            gender: '',
-            address: '',
-            district: '',
-            taluk: '',
-            amount: '',
-            termsAccepted: false
-          });
-        },
+            if (verif.success === true && verif.data.paymentStatus === "paid") {
+              setShowSuccess(true);
+              setFormData({
+                name: '',
+                mobile: '',
+                age: '',
+                gender: '',
+                address: '',
+                district: '',
+                taluk: '',
+                amount: '',
+                termsAccepted: false
+              });
+              setTimeout(() => {
+                setShowSuccess(false);
+
+                navigate('/donation-details', {
+                  state: {
+                    applicationId: verif.data.applicationId,
+                    paymentStatus: verif.data.paymentStatus,
+                    donationData: payload,
+                    razorpay: {
+                      orderId: response.razorpay_order_id,
+                      razorpayPaymentId: response.razorpay_payment_id
+                    }
+                  }
+                });
+
+              }, 3000);
+            } else {
+              setShowFailed(true);
+
+            }
+            setLoading(false);
+
+
+
+          } catch (err) {
+            console.log(err);
+            alert("Payment verification failed");
+          }
+        }
+
+        ,
         prefill: {
           name: formData.name,
           contact: formData.mobile
@@ -195,17 +199,43 @@ const DonationReg = () => {
       new window.Razorpay(options).open();
     } catch (err) {
       alert(err.message || 'ಪಾವತಿ ವಿಫಲವಾಗಿದೆ');
-    } finally {
       setLoading(false);
     }
+
+  };
+  const validation = (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (formData.mobile.length !== 10) {
+      alert("ದಯವಿಟ್ಟು 10 ಅಂಕೆಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.gender || !formData.address || !formData.district || !formData.taluk) {
+      alert("ದಯವಿಟ್ಟು ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.amount || Number(formData.amount) <= 0) {
+      alert("ಮಾನ್ಯ ದೇಣಿಗೆ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.termsAccepted) {
+      alert("ದಯವಿಟ್ಟು ನಿಯಮಗಳಿಗೆ ಒಪ್ಪಿಕೊಳ್ಳಿ");
+      return;
+    }
+
+    handleSubmit();
   };
 
   return (
     <div className='px-6'>
       <h1 className='text-[#166932] text-[40px] md:text-3xl font-black text-center py-6 md:py-8'>ದೇಣಿಗೆ ಅರ್ಜಿ</h1>
-      <h4 className='text-[##191D22] !font-black text-center md:block hidden text-md pt-3'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
+      <h4 className='text-[#191D22] !font-black text-center md:block hidden text-md pt-3'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
       <div className='flex justify-center items-center'>
-        <form className='md:w-[85%]' onSubmit={handleSubmit}>
+        <form className='md:w-[85%]' onSubmit={validation}>
 
           {/* <input name="name" placeholder="ಹೆಸರು" value={formData.name} onChange={handleChange} required />
         <input name="mobile" placeholder="ಮೊಬೈಲ್" value={formData.mobile} onChange={handleChange} required />
@@ -245,6 +275,7 @@ const DonationReg = () => {
                 <label className="mb-1 block  text-xs font-black text-[#222225]">ವಯಸ್ಸು</label>
                 <input placeholder='ವಯಸ್ಸನ್ನು ನಮೂದಿಸಿ' name="age"
                   value={formData.age}
+
                   onChange={handleChange} className='!px-2 h-[35px]  w-full rounded-md border border-[#7F7F7F] bg-white ps-10 py-2  text-sm outline-none
         focus:border-primary focus:ring-2 focus:ring-primary-light' />
               </div>
@@ -267,7 +298,7 @@ const DonationReg = () => {
                       name="gender"
                       value="ಸ್ತ್ರೀ"
                       checked={formData.gender === "ಸ್ತ್ರೀ"}
-                      onChange={handleChange} className='ox-2 h-[35px]' />
+                      onChange={handleChange} className='px-2 h-[35px]' />
                     <label htmlFor='female' className="mb-1 block  text-xs font-black text-[#222225] cursor-pointer mx-2">
                       ಸ್ತ್ರೀ</label>
                   </div>
@@ -341,6 +372,21 @@ const DonationReg = () => {
           </div>
         </form>
       </div>
+      {showSuccess && <DonationSuccess />}
+      {ShowFailed && (
+        <DonationFailed
+          onClose={() => setShowFailed(false)}
+          onRetry={() => {
+            if (loading) return;
+            setShowFailed(false);
+            handleSubmit();
+          }}
+        />
+      )}
+
+
+
+
     </div>
   );
 };

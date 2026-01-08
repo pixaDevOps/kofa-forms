@@ -301,7 +301,7 @@ const DonationReg = () => {
               <select defaultValue="" name="taluk"
                 value={formData.taluk}
                 onChange={handleChange} className='w-full cursor-pointer rounded-md border border-[#7F7F7F] bg-white px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary-light h-[35px] pt-2'>
-                <option value=""> ತಾಲೂಕು</option>
+                <option value=""> ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</option>
                 <option value="ಧಾರವಾಡ">ಧಾರವಾಡ</option>
                 <option value="ಹುಬ್ಬಳ್ಳಿ">ಹುಬ್ಬಳ್ಳಿ</option>
                 <option value="ಗಡಗ">ಗದಗ</option>
@@ -312,7 +312,7 @@ const DonationReg = () => {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-20 py-6'>
             <div className='w-[100%]'>
               <label className="mb-1 block  text-xs font-black text-[#222225]">ದೇಣಿಗೆ ಮೊತ್ತ</label>
-              <input placeholder='00000' name="amount"
+              <input placeholder='₹ 000000' name="amount"
                 type="number"
                 value={formData.amount}
                 onChange={handleChange}

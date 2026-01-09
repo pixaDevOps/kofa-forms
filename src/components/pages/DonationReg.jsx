@@ -3,6 +3,8 @@ import { createDonationOrder, verifyPayment } from '../../services/payments';
 import { loadRazorpay } from '../../utils/loadRazorpay';
 import DonationSuccess from '../layout/ui/DonationSuccess';
 import { useNavigate } from 'react-router-dom';
+import iconBack from '../../assets/lets-icons_back.svg'
+
 
 import DonationFailed from '../layout/ui/DonationFailed';
 const DonationReg = () => {
@@ -232,10 +234,12 @@ const DonationReg = () => {
 
   return (
     <div className='px-6'>
-      <h1 className='text-[#166932] text-[40px] md:text-3xl font-black text-center py-6 md:py-8'>ದೇಣಿಗೆ ಅರ್ಜಿ</h1>
-      <h4 className='text-[#191D22] !font-black text-center md:block hidden text-md pt-3'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
+      <h1 className='text-[#166932] text-4xl md:text-3xl font-black text-center py-4 md:py-10'>ದೇಣಿಗೆ ಅರ್ಜಿ</h1>
+      <h4 className='text-[#191D22] font-black text-center md:block hidden'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
+      <h4 className='text-[#000000]  text-center md:hidden font-semibold'>ನಿಮ್ಮ ಸದಸ್ಯತ್ವವನ್ನು ಮುಂದುವರಿಸಲು
+        ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು ಭರ್ತಿಮಾಡಿ</h4>
       <div className='flex justify-center items-center'>
-        <form className='md:w-[85%]' onSubmit={validation}>
+        <form className='w-[85%]' onSubmit={validation}>
 
           {/* <input name="name" placeholder="ಹೆಸರು" value={formData.name} onChange={handleChange} required />
         <input name="mobile" placeholder="ಮೊಬೈಲ್" value={formData.mobile} onChange={handleChange} required />
@@ -288,7 +292,7 @@ const DonationReg = () => {
                       name="gender"
                       value="ಪುರುಷ"
                       checked={formData.gender === "ಪುರುಷ"}
-                      onChange={handleChange} className='px-2 h-[35px] ' />
+                      onChange={handleChange} className='h-[30px] flex  justify-center items-center ' />
                     <label htmlFor="male" className="mb-1 mx-2 block  text-xs font-black text-[#222225] cursor-pointer" >
                       ಪುರುಷ</label>
                   </div>
@@ -298,7 +302,7 @@ const DonationReg = () => {
                       name="gender"
                       value="ಸ್ತ್ರೀ"
                       checked={formData.gender === "ಸ್ತ್ರೀ"}
-                      onChange={handleChange} className='px-2 h-[35px]' />
+                      onChange={handleChange} className=' h-[35px]' />
                     <label htmlFor='female' className="mb-1 block  text-xs font-black text-[#222225] cursor-pointer mx-2">
                       ಸ್ತ್ರೀ</label>
                   </div>
@@ -335,12 +339,12 @@ const DonationReg = () => {
                 <option value=""> ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</option>
                 <option value="ಧಾರವಾಡ">ಧಾರವಾಡ</option>
                 <option value="ಹುಬ್ಬಳ್ಳಿ">ಹುಬ್ಬಳ್ಳಿ</option>
-                <option value="ಗಡಗ">ಗದಗ</option>
+                <option value="ಗದಗ">ಗದಗ</option>
               </select>
             </div>
           </div>
           {/* <input name="amount" type="number" placeholder="ದೇಣಿಗೆ ಮೊತ್ತ" value={formData.amount} onChange={handleChange} required /> */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-20 py-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-y-3 gap-x-20 '>
             <div className='w-[100%]'>
               <label className="mb-1 block  text-xs font-black text-[#222225]">ದೇಣಿಗೆ ಮೊತ್ತ</label>
               <input placeholder='₹ 000000' name="amount"
@@ -357,7 +361,9 @@ const DonationReg = () => {
                 name="termsAccepted"
                 checked={formData.termsAccepted}
                 onChange={handleChange} className='px-2 mx-2  py-3 transform scale-150 mr-4' />
-              <label className="mb-1 hidden md:block text-[10px] font-black text-[#7F7F7F]"> ಸದಸ್ಯತ್ವದ ಪ್ರಯೋಜನಗಳು KOFA ಸಂಸ್ಥೆಯ ನೀತಿಗಳ ಪ್ರಕಾರ ಬದಲಾಗಬಹುದೆಂಬುದನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.</label>
+              <label className="mb-1 block md:hidden text-[10px] font-black text-[#7F7F7F]"> ಈ ಫಾರ್ಮ್ ಸಲ್ಲಿಸುವ ಮೂಲಕ, ನೀವು ಕೆಳಗಿನ ನಿಯಮಗಳು
+                ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಒಪ್ಪುತ್ತೀರಿ.</label>
+              <label className="mb-1 hidden md:block text-[10px] font-black text-[#7F7F7F]"> ಸದಸ್ಯತ್ವದ ಪ್ರಯೋಜನಗಳು<span className='pl-1 font-semibold'>KOFA</span>  ಸಂಸ್ಥೆಯ ನೀತಿಗಳ ಪ್ರಕಾರ ಬದಲಾಗಬಹುದೆಂಬುದನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.</label>
 
             </div>
             <div className=' my-2'>
@@ -367,6 +373,12 @@ const DonationReg = () => {
                 className='w-full md:w-auto h-[30px] !rounded-full !font-black text-[12px] !px-12 inline-flex items-center justify-center  py-2 text-sm  transition-colors bg-[#166932]
         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary text-white'>
                 {loading ? 'ಸಂಸ್ಕರಣೆ...' : 'ಸಲ್ಲಿಸಿ'}
+              </button>
+            </div>
+            <div className=' my-3 md:hidden flex '>
+              <button className='!bg-transparent border-2 border-[#680D3A] w-full md:w-auto h-[30px] !rounded-full !font-black text-[12px] text-[#680D3A] inline-flex items-center justify-center px-4 py-2 text-sm  transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'>
+                <img src={iconBack} className='h-[20px] mx-2' /> ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ
               </button>
             </div>
           </div>

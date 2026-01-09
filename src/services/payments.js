@@ -1,7 +1,7 @@
 const BASE_URL = "http://localhost:3000/api"; // backend
 
 export async function createDonationOrder(payload) {
-  const res = await fetch(`${BASE_URL}/api//payments/donation/order`, {
+  const res = await fetch(`${BASE_URL}/payments/donation/order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -10,7 +10,7 @@ export async function createDonationOrder(payload) {
 }
 
 export async function createMembershipOrder(payload) {
-  const res = await fetch(`${BASE_URL}/api//payments/membership/order`, {
+  const res = await fetch(`${BASE_URL}/payments/membership/order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -19,7 +19,7 @@ export async function createMembershipOrder(payload) {
 }
 
 export async function verifyPayment(payload) {
-  const res = await fetch(`${BASE_URL}/api//payments/verify`, {
+  const res = await fetch(`${BASE_URL}/payments/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)

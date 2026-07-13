@@ -35,7 +35,7 @@ function MembersReg() {
             setLoading(true);
 
             const applicationData = {
-                name: { kn: '', en: form.name },
+                name: { kn: form.name, en: form.name },
                 gender: form.gender,
                 mobile: form.mobile,
                 ...(form.age && { age: Number(form.age) }),

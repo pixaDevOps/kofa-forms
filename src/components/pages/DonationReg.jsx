@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { createDonationOrder, verifyPayment } from '../../services/payments';
 import { loadRazorpay } from '../../utils/loadRazorpay';
+import DonationSuccess from '../layout/ui/DonationSuccess';
+import { useNavigate } from 'react-router-dom';
+import iconBack from '../../assets/lets-icons_back.svg'
 
+
+import DonationFailed from '../layout/ui/DonationFailed';
 const DonationReg = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,9 +19,11 @@ const DonationReg = () => {
     amount: '',
     termsAccepted: false
   });
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [ShowFailed, setShowFailed] = useState(false);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -65,7 +72,10 @@ const DonationReg = () => {
         kn: "NA",
         en: "NA"
       },
-
+      age: {
+        kn: formData.age || '',
+        en: formData.age || ''
+      },
       gender:
         formData.gender === "ಪುರುಷ"
           ? "male"
@@ -104,47 +114,8 @@ const DonationReg = () => {
 
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-    if (formData.mobile.length !== 10) {
-      alert("ದಯವಿಟ್ಟು 10 ಅಂಕೆಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-    if (!formData.gender) {
-      alert("ಲಿಂಗವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-    if (!formData.address.trim()) {
-      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-    if (!formData.district) {
-      alert("ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-
-    if (!formData.taluk) {
-      alert("ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ");
-      return;
-    }
-
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      alert("ಮಾನ್ಯ ದೇಣಿಗೆ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ");
-      return;
-    }
-
-
-
-    if (!formData.termsAccepted) {
-      alert('ದಯವಿಟ್ಟು ನಿಯಮಗಳಿಗೆ ಒಪ್ಪಿಕೊಳ್ಳಿ');
-      return;
-    }
+  const handleSubmit = async () => {
+    if (loading) return;
 
     setLoading(true);
 
@@ -164,27 +135,62 @@ const DonationReg = () => {
         description: 'Donation',
         order_id: order.data.orderId,
         handler: async (response) => {
-          await verifyPayment({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            donationData: payload
-          });
+          try {
+            const verif = await verifyPayment({
+              applicationId: order.data.applicationId,
+              type: "donation",
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              donationData: payload
+            });
 
-          alert('ಪಾವತಿ ಯಶಸ್ವಿಯಾಗಿದೆ');
+            console.log("VERIFY RESPONSE:", verif);
 
-          setFormData({
-            name: '',
-            mobile: '',
-            age: '',
-            gender: '',
-            address: '',
-            district: '',
-            taluk: '',
-            amount: '',
-            termsAccepted: false
-          });
-        },
+            if (verif.success === true && verif.data.paymentStatus === "paid") {
+              setShowSuccess(true);
+              setFormData({
+                name: '',
+                mobile: '',
+                age: '',
+                gender: '',
+                address: '',
+                district: '',
+                taluk: '',
+                amount: '',
+                termsAccepted: false
+              });
+              setTimeout(() => {
+                setShowSuccess(false);
+
+                navigate('/donation-details', {
+                  state: {
+                    applicationId: verif.data.applicationId,
+                    paymentStatus: verif.data.paymentStatus,
+                    donationData: payload,
+                    razorpay: {
+                      orderId: response.razorpay_order_id,
+                      razorpayPaymentId: response.razorpay_payment_id
+                    }
+                  }
+                });
+
+              }, 3000);
+            } else {
+              setShowFailed(true);
+
+            }
+            setLoading(false);
+
+
+
+          } catch (err) {
+            console.log(err);
+            alert("Payment verification failed");
+          }
+        }
+
+        ,
         prefill: {
           name: formData.name,
           contact: formData.mobile
@@ -195,17 +201,45 @@ const DonationReg = () => {
       new window.Razorpay(options).open();
     } catch (err) {
       alert(err.message || 'ಪಾವತಿ ವಿಫಲವಾಗಿದೆ');
-    } finally {
       setLoading(false);
     }
+
+  };
+  const validation = (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (formData.mobile.length !== 10) {
+      alert("ದಯವಿಟ್ಟು 10 ಅಂಕೆಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.gender || !formData.address || !formData.district || !formData.taluk) {
+      alert("ದಯವಿಟ್ಟು ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.amount || Number(formData.amount) <= 0) {
+      alert("ಮಾನ್ಯ ದೇಣಿಗೆ ಮೊತ್ತವನ್ನು ನಮೂದಿಸಿ");
+      return;
+    }
+    if (!formData.termsAccepted) {
+      alert("ದಯವಿಟ್ಟು ನಿಯಮಗಳಿಗೆ ಒಪ್ಪಿಕೊಳ್ಳಿ");
+      return;
+    }
+
+    handleSubmit();
   };
 
   return (
     <div className='px-6'>
-      <h1 className='text-[#166932] text-[40px] md:text-3xl font-black text-center py-6 md:py-8'>ದೇಣಿಗೆ ಅರ್ಜಿ</h1>
-      <h4 className='text-[##191D22] !font-black text-center md:block hidden text-md pt-3'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
+      <h1 className='text-[#166932] text-4xl md:text-3xl font-black text-center py-4 md:py-10'>ದೇಣಿಗೆ ಅರ್ಜಿ</h1>
+      <h4 className='text-[#191D22] font-black text-center md:block hidden'>KOFA ಸಂಸ್ಥೆ ಸದಸ್ಯರ ಪ್ರಯೋಜನಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡುತ್ತದೆ ಹಾಗೂ ಸಂಸ್ಥೆಯ ಸೇವೆಗಳ ಸುಧಾರಣೆಗೆ ಸಹಕಾರಿಯಾಗುತ್ತದೆ.</h4>
+      <h4 className='text-[#000000]  text-center md:hidden font-semibold'>ನಿಮ್ಮ ಸದಸ್ಯತ್ವವನ್ನು ಮುಂದುವರಿಸಲು
+        ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು ಭರ್ತಿಮಾಡಿ</h4>
       <div className='flex justify-center items-center'>
-        <form className='md:w-[85%]' onSubmit={handleSubmit}>
+        <form className='w-[85%]' onSubmit={validation}>
 
           {/* <input name="name" placeholder="ಹೆಸರು" value={formData.name} onChange={handleChange} required />
         <input name="mobile" placeholder="ಮೊಬೈಲ್" value={formData.mobile} onChange={handleChange} required />
@@ -245,6 +279,7 @@ const DonationReg = () => {
                 <label className="mb-1 block  text-xs font-black text-[#222225]">ವಯಸ್ಸು</label>
                 <input placeholder='ವಯಸ್ಸನ್ನು ನಮೂದಿಸಿ' name="age"
                   value={formData.age}
+
                   onChange={handleChange} className='!px-2 h-[35px]  w-full rounded-md border border-[#7F7F7F] bg-white ps-10 py-2  text-sm outline-none
         focus:border-primary focus:ring-2 focus:ring-primary-light' />
               </div>
@@ -257,7 +292,7 @@ const DonationReg = () => {
                       name="gender"
                       value="ಪುರುಷ"
                       checked={formData.gender === "ಪುರುಷ"}
-                      onChange={handleChange} className='px-2 h-[35px] ' />
+                      onChange={handleChange} className='h-[30px] flex  justify-center items-center ' />
                     <label htmlFor="male" className="mb-1 mx-2 block  text-xs font-black text-[#222225] cursor-pointer" >
                       ಪುರುಷ</label>
                   </div>
@@ -267,7 +302,7 @@ const DonationReg = () => {
                       name="gender"
                       value="ಸ್ತ್ರೀ"
                       checked={formData.gender === "ಸ್ತ್ರೀ"}
-                      onChange={handleChange} className='ox-2 h-[35px]' />
+                      onChange={handleChange} className=' h-[35px]' />
                     <label htmlFor='female' className="mb-1 block  text-xs font-black text-[#222225] cursor-pointer mx-2">
                       ಸ್ತ್ರೀ</label>
                   </div>
@@ -304,12 +339,12 @@ const DonationReg = () => {
                 <option value=""> ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</option>
                 <option value="ಧಾರವಾಡ">ಧಾರವಾಡ</option>
                 <option value="ಹುಬ್ಬಳ್ಳಿ">ಹುಬ್ಬಳ್ಳಿ</option>
-                <option value="ಗಡಗ">ಗದಗ</option>
+                <option value="ಗದಗ">ಗದಗ</option>
               </select>
             </div>
           </div>
           {/* <input name="amount" type="number" placeholder="ದೇಣಿಗೆ ಮೊತ್ತ" value={formData.amount} onChange={handleChange} required /> */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-y-6 gap-x-20 py-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-y-3 gap-x-20 '>
             <div className='w-[100%]'>
               <label className="mb-1 block  text-xs font-black text-[#222225]">ದೇಣಿಗೆ ಮೊತ್ತ</label>
               <input placeholder='₹ 000000' name="amount"
@@ -326,7 +361,9 @@ const DonationReg = () => {
                 name="termsAccepted"
                 checked={formData.termsAccepted}
                 onChange={handleChange} className='px-2 mx-2  py-3 transform scale-150 mr-4' />
-              <label className="mb-1 hidden md:block text-[10px] font-black text-[#7F7F7F]"> ಸದಸ್ಯತ್ವದ ಪ್ರಯೋಜನಗಳು KOFA ಸಂಸ್ಥೆಯ ನೀತಿಗಳ ಪ್ರಕಾರ ಬದಲಾಗಬಹುದೆಂಬುದನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.</label>
+              <label className="mb-1 block md:hidden text-[10px] font-black text-[#7F7F7F]"> ಈ ಫಾರ್ಮ್ ಸಲ್ಲಿಸುವ ಮೂಲಕ, ನೀವು ಕೆಳಗಿನ ನಿಯಮಗಳು
+                ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಒಪ್ಪುತ್ತೀರಿ.</label>
+              <label className="mb-1 hidden md:block text-[10px] font-black text-[#7F7F7F]"> ಸದಸ್ಯತ್ವದ ಪ್ರಯೋಜನಗಳು<span className='pl-1 font-semibold'>KOFA</span>  ಸಂಸ್ಥೆಯ ನೀತಿಗಳ ಪ್ರಕಾರ ಬದಲಾಗಬಹುದೆಂಬುದನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.</label>
 
             </div>
             <div className=' my-2'>
@@ -338,9 +375,30 @@ const DonationReg = () => {
                 {loading ? 'ಸಂಸ್ಕರಣೆ...' : 'ಸಲ್ಲಿಸಿ'}
               </button>
             </div>
+            <div className=' my-3 md:hidden flex '>
+              <button className='!bg-transparent border-2 border-[#680D3A] w-full md:w-auto h-[30px] !rounded-full !font-black text-[12px] text-[#680D3A] inline-flex items-center justify-center px-4 py-2 text-sm  transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'>
+                <img src={iconBack} className='h-[20px] mx-2' /> ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ
+              </button>
+            </div>
           </div>
         </form>
       </div>
+      {showSuccess && <DonationSuccess />}
+      {ShowFailed && (
+        <DonationFailed
+          onClose={() => setShowFailed(false)}
+          onRetry={() => {
+            if (loading) return;
+            setShowFailed(false);
+            handleSubmit();
+          }}
+        />
+      )}
+
+
+
+
     </div>
   );
 };

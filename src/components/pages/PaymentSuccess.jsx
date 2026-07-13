@@ -86,40 +86,71 @@ function ThankYouPopup() {
 
 /* ---------- MEMBERSHIP CARD (NEW FIGMA STYLE) ---------- */
 function MembershipCard({ application, navigate }) {
+  const isPending = application.paymentStatus === "pending_verification";
+
   return (
     <div className="bg-white rounded-2xl shadow-lg w-[320px] p-6 text-center relative animate-slideUp">
 
       {/* Close Icon */}
       <button
-        className="absolute top-3 right-3 text-gray-400 text-xl"
+        className="absolute top-3 right-3 text-gray-400 text-xl font-bold"
         onClick={() => navigate("/")}
       >
         ×
       </button>
 
-      <p className="text-[#166932] font-bold text-base mb-1">
-        ಹೆಸರು : {application.name}
-      </p>
+      {isPending ? (
+        <>
+          <h2 className="text-[#166932] text-lg font-black mb-2">
+            ಪಾವತಿ ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ
+          </h2>
 
-      <p className="text-[#166932] font-semibold mb-3">
-        ಸದಸ್ಯ ಐಡಿ : {application.membershipNumber}
-      </p>
+          <div className="text-left space-y-2 border-y border-gray-200 py-3 my-3 text-xs">
+            <p className="text-gray-700"><strong>ಹೆಸರು:</strong> {application.name}</p>
+            <p className="text-gray-700"><strong>ಮೊಬೈಲ್ ಸಂಖ್ಯೆ:</strong> {application.mobile}</p>
+            <p className="text-gray-700"><strong>ಮೊತ್ತ:</strong> ₹ {application.amount}</p>
+            <p className="text-gray-700"><strong>UTR ಸಂಖ್ಯೆ:</strong> {application.upiTransactionId || "N/A"}</p>
+            <p className="text-gray-700"><strong>ಸ್ಥಿತಿ:</strong> ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ</p>
+          </div>
 
-      <h3 className="text-lg font-bold mb-1">
-        ಧನ್ಯವಾದಗಳು
-      </h3>
+          <p className="text-[11px] text-gray-500 font-bold mb-4">
+            ನಾವು ನಿಮ್ಮ ಪಾವತಿಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತೇವೆ. ಪರಿಶೀಲನೆಯ ನಂತರ ನಿಮ್ಮ ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಲಭ್ಯವಿರುತ್ತದೆ.
+          </p>
 
-      <p className="text-xs text-gray-600 mb-5">
-        ನಮ್ಮ ಸಂಸ್ಥೆಗೆ ನೀವು ಸದಸ್ಯರಾಗಿರುವುದು ನಮಗೆ ತುಂಬಾ
-                ಸಂತೋಷವನ್ನು ನೀಡುತ್ತದೆ
-      </p>
+          <button
+            disabled
+            className="bg-gray-300 text-gray-500 px-5 py-2 rounded-full text-xs font-bold mx-auto cursor-not-allowed"
+          >
+            ಕಾರ್ಡ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿ
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="text-[#166932] font-bold text-base mb-1">
+            ಹೆಸರು : {application.name}
+          </p>
 
-      <button
-        onClick={() => window.print()}
-        className="bg-[#166932] text-white px-5 py-2 rounded-full text-sm font-bold mx-auto"
-      >
-        ಡೌನ್ಲೋಡ್ ಕಾರ್ಡ್
-      </button>
+          <p className="text-[#166932] font-semibold mb-3">
+            ಸದಸ್ಯ ಐಡಿ : {application.membershipNumber || "N/A"}
+          </p>
+
+          <h3 className="text-lg font-bold mb-1">
+            ಧನ್ಯವಾದಗಳು
+          </h3>
+
+          <p className="text-xs text-gray-600 mb-5">
+            ನಮ್ಮ ಸಂಸ್ಥೆಗೆ ನೀವು ಸದಸ್ಯರಾಗಿರುವುದು ನಮಗೆ ತುಂಬಾ
+            ಸಂತೋಷವನ್ನು ನೀಡುತ್ತದೆ
+          </p>
+
+          <button
+            onClick={() => window.print()}
+            className="bg-[#166932] text-white px-5 py-2 rounded-full text-sm font-bold mx-auto hover:bg-[#125428] transition-colors"
+          >
+            ಡೌನ್ಲೋಡ್ ಕಾರ್ಡ್
+          </button>
+        </>
+      )}
     </div>
   );
 }

@@ -1,12 +1,9 @@
-import React, { useState } from 'react'
-
+import React, { useState } from 'react';
 import Money from '../../assets/Money.svg';
 import iconBack from '../../assets/lets-icons_back.svg';
 import { useNavigate } from 'react-router-dom';
-import {
-    createMembershipOrder,
-    verifyPayment
-} from '../../services/payments';
+import { submitUpiPayment } from '../../services/payments';
+import UpiPaymentModal from '../layout/ui/UpiPaymentModal';
 
 
 function MembersReg() {
@@ -25,115 +22,70 @@ function MembersReg() {
     });
     const [loading, setLoading] = useState(false);
     const [accepted, setAccepted] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
+        setIsPaymentModalOpen(true);
+    };
 
+    const handlePaymentSubmit = async ({ utr, screenshot }) => {
         if (loading) return;
+        setLoading(true);
+        setIsPaymentModalOpen(false);
 
         try {
-            setLoading(true);
-
             const applicationData = {
+                type: "membership",
                 name: { kn: form.name, en: form.name },
-                gender: form.gender,
+                gender: form.gender === "male" || form.gender === "ಪುರುಷ" ? "male" : "female",
                 mobile: form.mobile,
                 ...(form.age && { age: Number(form.age) }),
                 acres: Number(form.acres),
                 location: {
-                    district: { kn: form.district, en: '' },
-                    taluk: { kn: form.taluk, en: '' },
-                    village: { kn: form.village, en: '' }
+                    district: { kn: form.district, en: form.district },
+                    taluk: { kn: form.taluk, en: form.taluk },
+                    village: { kn: form.village, en: form.village }
                 },
                 address: {
-                    line1: { kn: form.address, en: '' },
+                    line1: { kn: form.address, en: form.address },
                     line2: { kn: '', en: '' },
                     pincode: ''
-                }
+                },
+                amount: 100 // Fixed membership fee
             };
-            const apiResponse = await createMembershipOrder({
-                applicationData
-            });
-            if (!apiResponse?.data) {
-                throw new Error("Invalid response from payment API");
+
+            const formDataToSend = new FormData();
+            formDataToSend.append("upiTransactionId", utr);
+            formDataToSend.append("screenshot", screenshot);
+            formDataToSend.append("applicationData", JSON.stringify(applicationData));
+
+            const res = await submitUpiPayment(formDataToSend);
+
+            if (res.success === true) {
+                navigate(`/payment-success/${res.data.applicationId}`);
+
+                setForm({
+                    name: '',
+                    mobile: '',
+                    gender: '',
+                    age: '',
+                    acres: '',
+                    address: '',
+                    district: '',
+                    taluk: '',
+                    village: ''
+                });
+                setAccepted(false);
+            } else {
+                alert(res.message || "ಪಾವತಿ ಸಲ್ಲಿಕೆ ವಿಫಲವಾಗಿದೆ");
             }
-
-            const {
-                orderId,
-                razorpayKeyId,
-                amount,
-                applicationId
-            } = apiResponse.data;
-
-            /* 🔥 OPEN RAZORPAY */
-            openRazorpay({
-                orderId,
-                razorpayKeyId,
-                amount,
-                applicationId
-            });
-
         } catch (error) {
             console.error(error);
-            alert(error?.response?.data?.message || 'Submission failed');
+            alert("ಪಾವತಿ ಸಲ್ಲಿಕೆ ವಿಫಲವಾಗಿದೆ");
         } finally {
             setLoading(false);
         }
-    };
-
-    /* ============================================================
-       🔥 RAZORPAY HANDLER
-       ============================================================ */
-    const openRazorpay = ({
-        orderId,
-        razorpayKeyId,
-        amount,
-        applicationId
-    }) => {
-        const options = {
-            key: razorpayKeyId,
-            amount,
-            currency: "INR",
-            order_id: orderId,
-
-            handler: async function (response) {
-                try {
-                    /* 🔥 VERIFY PAYMENT */
-                    await verifyPayment({
-                        applicationId,
-                        type: "membership",
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature
-                    });
-
-                    /* 🔥 NAVIGATE ONLY AFTER SUCCESS */
-                    navigate(`/payment-success/${applicationId}`);
-
-
-                    setForm({
-                        name: '',
-                        mobile: '',
-                        gender: '',
-                        age: '',
-                        acres: '',
-                        address: '',
-                        district: '',
-                        taluk: '',
-                        village: ''
-                    });
-                    setAccepted(false);
-
-                } catch (err) {
-                    alert("Payment verification failed");
-                }
-            },
-
-            theme: { color: "#166932" }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
     };
 
 
@@ -303,8 +255,16 @@ function MembersReg() {
                     </form>
                 </div>
             </div>
+
+            <UpiPaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onSubmit={handlePaymentSubmit}
+                amount={100}
+                type="membership"
+            />
         </>
-    )
+    );
 }
 
 export default MembersReg

@@ -1,28 +1,11 @@
-const BASE_URL = "http://localhost:3000/api"; // backend
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000") + "/api";
 
-export async function createDonationOrder(payload) {
-  const res = await fetch(`${BASE_URL}/payments/donation/order`, {
+export async function submitUpiPayment(formData) {
+  const res = await fetch(`${BASE_URL}/payments/upi/submit`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  return res.json();
-}
-
-export async function createMembershipOrder(payload) {
-  const res = await fetch(`${BASE_URL}/payments/membership/order`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  return res.json();
-}
-
-export async function verifyPayment(payload) {
-  const res = await fetch(`${BASE_URL}/payments/verify`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    // Note: Do NOT set Content-Type header. The browser will set it automatically
+    // with the multipart boundary string when passing a FormData instance.
+    body: formData
   });
   return res.json();
 }

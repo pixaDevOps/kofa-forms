@@ -11,10 +11,8 @@ const DonationDetails = () => {
 const {
   donationData,
   applicationId,
-  razorpay
+  upiTransactionId
 } = state;
-
-const razorpayPaymentId = razorpay?.razorpayPaymentId;
 
 
     const app = donationData.applicationData;
@@ -60,8 +58,8 @@ const razorpayPaymentId = razorpay?.razorpayPaymentId;
                 </div>
 
               
-                <h2 className="text-[#166932] text-[20.94px] pt-1 font-bold">
-                    ದೇಣಿಗೆ ಯಶಸ್ವಿಯಾಗಿದೆ
+                <h2 className="text-[#166932] text-[18px] pt-1 font-bold text-center">
+                    ಪಾವತಿ ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ
                 </h2>
 
                
@@ -69,11 +67,12 @@ const razorpayPaymentId = razorpay?.razorpayPaymentId;
                    {[
   ["ಹೆಸರು", app.name.kn || app.name.en],
   ["ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", app.mobile],
-  ["ಸದಸ್ಯ ಐಡಿ", applicationId ? applicationId.slice(-4) : "—"],
-  ["UTR No.", razorpayPaymentId || "N/A"],
+  ["ಅರ್ಜಿ ಸಂಖ್ಯೆ", applicationId ? applicationId.slice(-6) : "—"],
+  ["UTR No.", upiTransactionId || "N/A"],
   ["ದಿನಾಂಕ", formatDate(new Date())],
   ["ಮೊತ್ತ", `₹ ${donationData.amount}`],
-  ["ಪಾವತಿ ವಿಧಾನ", "Razorpay"]
+  ["ಪಾವತಿ ವಿಧಾನ", "UPI"],
+  ["ಪಾವತಿ ಸ್ಥಿತಿ", "ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ"]
 ].map(([label, value]) => (
   <div
     key={label}
@@ -87,17 +86,18 @@ const razorpayPaymentId = razorpay?.razorpayPaymentId;
                 </div>
 
                 
-                <div className="m-3">
-                    <button className="
+                <div className="m-3 flex flex-col items-center">
+                    <span className="text-[10px] text-gray-500 font-bold mb-1 text-center">ಪಾವತಿ ಪರಿಶೀಲನೆಯ ನಂತರ ರಸೀದಿ ಲಭ್ಯವಿರುತ್ತದೆ.</span>
+                    <button disabled className="
         py-2 px-8
-          bg-[#166932]
+          bg-gray-300
           rounded-[44px]
-          text-[#FCFCFC]
-         
+          text-gray-500
+          cursor-not-allowed
           font-black
           flex items-center justify-center
         ">
-                     <span> <img src={download} className=" h-[20px] w-[30px] font-black font-bold  "></img></span>   ರಸೀದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ
+                     <span> <img src={download} className="h-[20px] w-[30px] opacity-40"></img></span> ರಸೀದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ
                     </button>
                 </div>
             </div>

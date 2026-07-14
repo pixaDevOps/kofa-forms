@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { createDonationOrder, verifyPayment } from '../../services/payments';
-import { loadRazorpay } from '../../utils/loadRazorpay';
+import { submitUpiPayment } from '../../services/payments';
 import DonationSuccess from '../layout/ui/DonationSuccess';
 import { useNavigate } from 'react-router-dom';
-import iconBack from '../../assets/lets-icons_back.svg'
-
-
+import iconBack from '../../assets/lets-icons_back.svg';
+import UpiPaymentModal from '../layout/ui/UpiPaymentModal';
 import DonationFailed from '../layout/ui/DonationFailed';
 const DonationReg = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +22,7 @@ const DonationReg = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [ShowFailed, setShowFailed] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -114,96 +113,58 @@ const DonationReg = () => {
 
 
 
-  const handleSubmit = async () => {
-    if (loading) return;
+  const handleSubmit = () => {
+    setIsPaymentModalOpen(true);
+  };
 
+  const handlePaymentSubmit = async ({ utr, screenshot }) => {
+    if (loading) return;
     setLoading(true);
+    setIsPaymentModalOpen(false);
 
     try {
       const payload = formatDataForBackend();
-      const order = await createDonationOrder(payload);
-      console.log("ORDER RESPONSE ", order);
-      const loaded = await loadRazorpay();
-      if (!loaded) throw new Error('Razorpay SDK load failed');
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append("upiTransactionId", utr);
+      formDataToSend.append("screenshot", screenshot);
+      formDataToSend.append("applicationData", JSON.stringify(payload.applicationData));
 
-      const options = {
-        //  key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        key: order.data.razorpayKeyId,
-        amount: order.data.amount,
-        currency: order.data.currency,
-        name: 'KOFA',
-        description: 'Donation',
-        order_id: order.data.orderId,
-        handler: async (response) => {
-          try {
-            const verif = await verifyPayment({
-              applicationId: order.data.applicationId,
-              type: "donation",
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              donationData: payload
-            });
+      const res = await submitUpiPayment(formDataToSend);
 
-            console.log("VERIFY RESPONSE:", verif);
-
-            if (verif.success === true && verif.data.paymentStatus === "paid") {
-              setShowSuccess(true);
-              setFormData({
-                name: '',
-                mobile: '',
-                age: '',
-                gender: '',
-                address: '',
-                district: '',
-                taluk: '',
-                amount: '',
-                termsAccepted: false
-              });
-              setTimeout(() => {
-                setShowSuccess(false);
-
-                navigate('/donation-details', {
-                  state: {
-                    applicationId: verif.data.applicationId,
-                    paymentStatus: verif.data.paymentStatus,
-                    donationData: payload,
-                    razorpay: {
-                      orderId: response.razorpay_order_id,
-                      razorpayPaymentId: response.razorpay_payment_id
-                    }
-                  }
-                });
-
-              }, 3000);
-            } else {
-              setShowFailed(true);
-
+      if (res.success === true) {
+        setShowSuccess(true);
+        setFormData({
+          name: '',
+          mobile: '',
+          age: '',
+          gender: '',
+          address: '',
+          district: '',
+          taluk: '',
+          amount: '',
+          termsAccepted: false
+        });
+        setTimeout(() => {
+          setShowSuccess(false);
+          navigate('/donation-details', {
+            state: {
+              applicationId: res.data.applicationId,
+              paymentStatus: res.data.paymentStatus,
+              donationData: payload,
+              upiTransactionId: utr
             }
-            setLoading(false);
-
-
-
-          } catch (err) {
-            console.log(err);
-            alert("Payment verification failed");
-          }
-        }
-
-        ,
-        prefill: {
-          name: formData.name,
-          contact: formData.mobile
-        },
-        theme: { color: '#166932' }
-      };
-
-      new window.Razorpay(options).open();
+          });
+        }, 3000);
+      } else {
+        setShowFailed(true);
+      }
     } catch (err) {
-      alert(err.message || 'ಪಾವತಿ ವಿಫಲವಾಗಿದೆ');
+      console.error(err);
+      setShowFailed(true);
+    } finally {
       setLoading(false);
     }
-
   };
   const validation = (e) => {
     e.preventDefault();
@@ -389,16 +350,19 @@ const DonationReg = () => {
         <DonationFailed
           onClose={() => setShowFailed(false)}
           onRetry={() => {
-            if (loading) return;
             setShowFailed(false);
             handleSubmit();
           }}
         />
       )}
 
-
-
-
+      <UpiPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onSubmit={handlePaymentSubmit}
+        amount={formData.amount}
+        type="donation"
+      />
     </div>
   );
 };

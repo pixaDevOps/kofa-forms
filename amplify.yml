@@ -1,0 +1,19 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Install dependencies using the package-lock file
+        - npm ci
+    build:
+      commands:
+        # Build the production bundle
+        - npm run build
+  artifacts:
+    # Vite outputs built files to the dist directory
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*

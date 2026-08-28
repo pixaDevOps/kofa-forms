@@ -61,6 +61,7 @@ const DonationReg = () => {
 
     applicationData: {
       type: "donation",
+      amount: Number(formData.amount),
 
       name: {
         kn: formData.name || "",
@@ -71,10 +72,7 @@ const DonationReg = () => {
         kn: "NA",
         en: "NA"
       },
-      age: {
-        kn: formData.age || '',
-        en: formData.age || ''
-      },
+      ...(formData.age ? { age: Number(formData.age) } : {}),
       gender:
         formData.gender === "ಪುರುಷ"
           ? "male"

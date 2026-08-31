@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import iconBack from '../../assets/lets-icons_back.svg';
 import UpiPaymentModal from '../layout/ui/UpiPaymentModal';
 import DonationFailed from '../layout/ui/DonationFailed';
+import { KARNATAKA_DISTRICTS, KARNATAKA_DISTRICTS_AND_TALUKS } from '../../data/karnatakaDistricts';
+
 const DonationReg = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -23,11 +25,21 @@ const DonationReg = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [ShowFailed, setShowFailed] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleDistrictChange = (e) => {
+    const selectedDistrict = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      district: selectedDistrict,
+      taluk: ''
     }));
   };
 
@@ -280,25 +292,28 @@ const DonationReg = () => {
               <label className="mb-1 block text-xs font-black text-[#222225]">
                 ಜಿಲ್ಲೆ
               </label>
-              <select defaultValue="" name="district"
+              <select name="district"
                 value={formData.district}
-                onChange={handleChange} className='w-full cursor-pointer rounded-md border border-[#7F7F7F] bg-white px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary-light h-[35px] pt-2'>
-                <option value="" >ಜಿಲ್ಲೆ ಆಯ್ಕೆ ಮಾಡಿ</option>
-                <option value="ಧಾರವಾಡ">ಧಾರವಾಡ</option>
-                <option value="ಗಡಗ">ಗದಗ</option>
+                onChange={handleDistrictChange} className='w-full cursor-pointer rounded-md border border-[#7F7F7F] bg-white px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary-light h-[35px] pt-2'>
+                <option value="">ಜಿಲ್ಲೆ ಆಯ್ಕೆ ಮಾಡಿ</option>
+                {KARNATAKA_DISTRICTS.map((dist) => (
+                  <option key={dist} value={dist}>{dist}</option>
+                ))}
               </select>
             </div>
             <div className='w-[100%]'>
               <label className="mb-1 block  text-xs font-black text-[#222225]">
                 ತಾಲೂಕು
               </label>
-              <select defaultValue="" name="taluk"
+              <select name="taluk"
                 value={formData.taluk}
-                onChange={handleChange} className='w-full cursor-pointer rounded-md border border-[#7F7F7F] bg-white px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary-light h-[35px] pt-2'>
-                <option value=""> ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</option>
-                <option value="ಧಾರವಾಡ">ಧಾರವಾಡ</option>
-                <option value="ಹುಬ್ಬಳ್ಳಿ">ಹುಬ್ಬಳ್ಳಿ</option>
-                <option value="ಗದಗ">ಗದಗ</option>
+                onChange={handleChange}
+                disabled={!formData.district}
+                className='w-full cursor-pointer rounded-md border border-[#7F7F7F] bg-white px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary-light h-[35px] pt-2 disabled:bg-gray-100 disabled:cursor-not-allowed'>
+                <option value="">{formData.district ? "ತಾಲೂಕನ್ನು ಆಯ್ಕೆ ಮಾಡಿ" : "ಮೊದಲು ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ"}</option>
+                {formData.district && KARNATAKA_DISTRICTS_AND_TALUKS[formData.district]?.map((taluk) => (
+                  <option key={taluk} value={taluk}>{taluk}</option>
+                ))}
               </select>
             </div>
           </div>

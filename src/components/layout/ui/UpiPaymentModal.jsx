@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
-  const [utr, setUtr] = useState('');
+  // const [utr, setUtr] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -29,13 +29,13 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
     }
   };
 
-  const isUtrValid = /^\d{12}$/.test(utr);
-  const isFormValid = isUtrValid && screenshot !== null;
+  // const isUtrValid = /^\d{12}$/.test(utr);
+  const isFormValid = screenshot !== null;
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (isFormValid) {
-      onSubmit({ utr, screenshot });
+      onSubmit({ screenshot });
     }
   };
 
@@ -86,7 +86,7 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
 
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* UTR Input */}
-          <div>
+          {/* <div>
             <label className="block text-[11px] font-black text-[#222225] mb-1">
               UPI ಯುಟಿಆರ್ ಸಂಖ್ಯೆ (12 ಅಂಕೆಗಳು) <span className="text-red-500">*</span>
             </label>
@@ -101,7 +101,7 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
             {utr && !isUtrValid && (
               <span className="text-[10px] text-red-500 mt-1 block">ಮಾನ್ಯ 12 ಅಂಕೆಗಳ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ</span>
             )}
-          </div>
+          </div> */}
 
           {/* Screenshot Upload */}
           <div>

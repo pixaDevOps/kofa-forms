@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
-  const [utr, setUtr] = useState('');
+  // const [utr, setUtr] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -29,13 +29,13 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
     }
   };
 
-  const isUtrValid = /^\d{12}$/.test(utr);
-  const isFormValid = isUtrValid && screenshot !== null;
+  // const isUtrValid = /^\d{12}$/.test(utr);
+  const isFormValid = screenshot !== null;
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (isFormValid) {
-      onSubmit({ utr, screenshot });
+      onSubmit({ screenshot });
     }
   };
 

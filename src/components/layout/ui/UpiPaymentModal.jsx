@@ -86,7 +86,7 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
 
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* UTR Input */}
-          <div>
+          {/* <div>
             <label className="block text-[11px] font-black text-[#222225] mb-1">
               UPI ಯುಟಿಆರ್ ಸಂಖ್ಯೆ (12 ಅಂಕೆಗಳು) <span className="text-red-500">*</span>
             </label>
@@ -101,7 +101,7 @@ function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
             {utr && !isUtrValid && (
               <span className="text-[10px] text-red-500 mt-1 block">ಮಾನ್ಯ 12 ಅಂಕೆಗಳ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ</span>
             )}
-          </div>
+          </div> */}
 
           {/* Screenshot Upload */}
           <div>

@@ -109,6 +109,7 @@ function MembershipCard({ application, navigate }) {
             <p className="text-gray-700"><strong>ಹೆಸರು:</strong> {application.name}</p>
             <p className="text-gray-700"><strong>ಮೊಬೈಲ್ ಸಂಖ್ಯೆ:</strong> {application.mobile}</p>
             <p className="text-gray-700"><strong>ಮೊತ್ತ:</strong> ₹ {application.amount}</p>
+            <p className="text-gray-700"><strong>UTR ಸಂಖ್ಯೆ:</strong> {application.upiTransactionId || "N/A"}</p>
             <p className="text-gray-700"><strong>ಸ್ಥಿತಿ:</strong> ಪರಿಶೀಲನೆಯಲ್ಲಿದೆ</p>
           </div>
 

@@ -10,7 +10,8 @@ const DonationDetails = () => {
 
 const {
   donationData,
-  applicationId
+  applicationId,
+  upiTransactionId
 } = state;
 
 
@@ -67,6 +68,7 @@ const {
   ["ಹೆಸರು", app.name.kn || app.name.en],
   ["ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", app.mobile],
   ["ಅರ್ಜಿ ಸಂಖ್ಯೆ", applicationId ? applicationId.slice(-6) : "—"],
+  ["UTR No.", upiTransactionId || "N/A"],
   ["ದಿನಾಂಕ", formatDate(new Date())],
   ["ಮೊತ್ತ", `₹ ${donationData.amount}`],
   ["ಪಾವತಿ ವಿಧಾನ", "UPI"],

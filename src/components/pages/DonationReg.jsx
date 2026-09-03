@@ -127,7 +127,7 @@ const DonationReg = () => {
     setIsPaymentModalOpen(true);
   };
 
-  const handlePaymentSubmit = async ({ screenshot }) => {
+  const handlePaymentSubmit = async ({ utr, screenshot }) => {
     if (loading) return;
     setLoading(true);
     setIsPaymentModalOpen(false);
@@ -136,6 +136,7 @@ const DonationReg = () => {
       const payload = formatDataForBackend();
       
       const formDataToSend = new FormData();
+      formDataToSend.append("upiTransactionId", utr);
       formDataToSend.append("screenshot", screenshot);
       formDataToSend.append("applicationData", JSON.stringify(payload.applicationData));
 
@@ -160,7 +161,8 @@ const DonationReg = () => {
             state: {
               applicationId: res.data.applicationId,
               paymentStatus: res.data.paymentStatus,
-              donationData: payload
+              donationData: payload,
+              upiTransactionId: utr
             }
           });
         }, 3000);

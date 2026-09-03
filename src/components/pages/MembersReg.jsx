@@ -39,7 +39,7 @@ function MembersReg() {
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSubmit = async ({ screenshot }) => {
+    const handlePaymentSubmit = async ({ utr, screenshot }) => {
         if (loading) return;
         setLoading(true);
         setIsPaymentModalOpen(false);
@@ -66,6 +66,7 @@ function MembersReg() {
             };
 
             const formDataToSend = new FormData();
+            formDataToSend.append("upiTransactionId", utr);
             formDataToSend.append("screenshot", screenshot);
             formDataToSend.append("applicationData", JSON.stringify(applicationData));
 

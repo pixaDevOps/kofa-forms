@@ -1,14 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function UpiPaymentModal({ isOpen, onClose, onSubmit, amount, type }) {
   // const [utr, setUtr] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [upiConfig, setUpiConfig] = useState({
+    upiId: "kofa@upi",
+    merchantName: "Kofa Foundation"
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+    fetch(`${baseUrl}/api/payments/upi-config`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && res.data?.upiId && res.data?.merchantName) {
+          setUpiConfig({
+            upiId: res.data.upiId,
+            merchantName: res.data.merchantName
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load UPI config", error);
+      });
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const upiId = "kofa@upi"; // Merchant UPI ID
-  const merchantName = "Kofa Foundation";
+  const { upiId, merchantName } = upiConfig;
   
   // Construct standard UPI Payment deep link
   const note = type === "membership" ? "Kofa Membership Fee" : "Kofa Donation";

@@ -88,7 +88,7 @@ const {
                 
                 <div className="m-3 flex flex-col items-center">
                     <span className="text-[10px] text-gray-500 font-bold mb-1 text-center">ನಮ್ಮ ತಾಂತ್ರಿಕ ತಂಡವು ಪಾವತಿಯನ್ನು ಪರಿಶೀಲಿಸಿದ ನಂತರ, ರಸೀದಿಯನ್ನು ನಿಮ್ಮ WhatsApp ಸಂಖ್ಯೆಗೆ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.</span>
-                    <button disabled className="
+                    {/* <button disabled className="
         py-2 px-8
           bg-gray-300
           rounded-[44px]
@@ -98,7 +98,7 @@ const {
           flex items-center justify-center
         ">
                      <span> <img src={download} className="h-[20px] w-[30px] opacity-40"></img></span> ರಸೀದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>

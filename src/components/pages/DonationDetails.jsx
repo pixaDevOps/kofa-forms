@@ -11,7 +11,7 @@ const DonationDetails = () => {
 const {
   donationData,
   applicationId,
-  upiTransactionId
+ 
 } = state;
 
 
@@ -68,7 +68,7 @@ const {
   ["ಹೆಸರು", app.name.kn || app.name.en],
   ["ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", app.mobile],
   ["ಅರ್ಜಿ ಸಂಖ್ಯೆ", applicationId ? applicationId.slice(-6) : "—"],
-  ["UTR No.", upiTransactionId || "N/A"],
+
   ["ದಿನಾಂಕ", formatDate(new Date())],
   ["ಮೊತ್ತ", `₹ ${donationData.amount}`],
   ["ಪಾವತಿ ವಿಧಾನ", "UPI"],
@@ -87,7 +87,7 @@ const {
 
                 
                 <div className="m-3 flex flex-col items-center">
-                    <span className="text-[10px] text-gray-500 font-bold mb-1 text-center">ಪಾವತಿ ಪರಿಶೀಲನೆಯ ನಂತರ ರಸೀದಿ ಲಭ್ಯವಿರುತ್ತದೆ.</span>
+                    <span className="text-[10px] text-gray-500 font-bold mb-1 text-center">ನಮ್ಮ ತಾಂತ್ರಿಕ ತಂಡವು ಪಾವತಿಯನ್ನು ಪರಿಶೀಲಿಸಿದ ನಂತರ, ರಸೀದಿಯನ್ನು ನಿಮ್ಮ WhatsApp ಸಂಖ್ಯೆಗೆ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.</span>
                     <button disabled className="
         py-2 px-8
           bg-gray-300

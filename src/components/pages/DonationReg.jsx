@@ -30,7 +30,7 @@ const DonationReg = () => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: name === 'mobile' ? value.replace(/\D/g, '').slice(0, 10) : type === 'checkbox' ? checked : value
     }));
   };
 
@@ -242,7 +242,7 @@ const DonationReg = () => {
                   }
                 }}
                 onChange={handleChange}
-                name="mobile" maxLength={10} type="text" className='!px-2 h-[35px] w-full rounded-md border border-[#7F7F7F] bg-white ps-10 py-2  text-sm outline-none
+                name="mobile" maxLength={10} inputMode="numeric" pattern="[0-9]{10}" type="text" className='!px-2 h-[35px] w-full rounded-md border border-[#7F7F7F] bg-white ps-10 py-2  text-sm outline-none
         focus:border-primary focus:ring-2 focus:ring-primary-light'  />
             </div>
             <div className='flex gap-6'>

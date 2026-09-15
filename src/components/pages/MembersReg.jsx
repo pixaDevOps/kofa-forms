@@ -34,8 +34,16 @@ function MembersReg() {
         }));
     };
 
+    const handleMobileChange = (e) => {
+        setForm({ ...form, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (form.mobile.length !== 10) {
+            alert("Please enter a valid 10 digit mobile number");
+            return;
+        }
         setIsPaymentModalOpen(true);
     };
 
@@ -123,8 +131,12 @@ function MembersReg() {
                             </div>
                             <div className='w-[100%]'>
                                 <label className="mb-1 block  text-xs font-black text-[#222225]">ಮೊಬೈಲ್ ಸಂಖ್ಯೆ</label>
-                                <input value={form.mobile}
-                                    onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+                                <input
+                                    value={form.mobile}
+                                    onChange={handleMobileChange}
+                                    inputMode="numeric"
+                                    pattern="[0-9]{10}"
+                                    maxLength={10}
                                     placeholder='ಸರಿಯಾದ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ'
                                     className='!px-2 h-[35px] w-full rounded-md border border-[#7F7F7F] bg-white ps-10 py-2  text-sm outline-none
         focus:border-primary focus:ring-2 focus:ring-primary-light' />

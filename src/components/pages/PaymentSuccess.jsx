@@ -143,12 +143,12 @@ function MembershipCard({ application, navigate }) {
             ಸಂತೋಷವನ್ನು ನೀಡುತ್ತದೆ
           </p>
 
-          <button
+          {/* <button
             onClick={() => window.print()}
             className="bg-[#166932] text-white px-5 py-2 rounded-full text-sm font-bold mx-auto hover:bg-[#125428] transition-colors"
           >
             ಡೌನ್ಲೋಡ್ ಕಾರ್ಡ್
-          </button>
+          </button> */}
         </>
       )}
     </div>

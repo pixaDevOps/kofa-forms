@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import success from '../../assets/rightmark.svg'
-import download from '../../assets/Download.svg'
+
 import cancelbtn from '../../assets/cancelbtn.svg'
 const DonationDetails = () => {
     const { state } = useLocation();

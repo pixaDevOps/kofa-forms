@@ -117,12 +117,12 @@ function MembershipCard({ application, navigate }) {
             ನಮ್ಮ ತಾಂತ್ರಿಕ ತಂಡವು ನಿಮ್ಮ ಪಾವತಿಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತದೆ. ಪರಿಶೀಲನೆಯ ನಂತರ ನಿಮ್ಮ ಸದಸ್ಯತ್ವ ಕಾರ್ಡನ್ನು ನಿಮ್ಮ WhatsApp ಸಂಖ್ಯೆಗೆ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.
           </p>
 
-          <button
+          {/* <button
             disabled
             className="bg-gray-300 text-gray-500 px-5 py-2 rounded-full text-xs font-bold mx-auto cursor-not-allowed"
           >
             ಕಾರ್ಡ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿ
-          </button>
+          </button> */}
         </>
       ) : (
         <>
